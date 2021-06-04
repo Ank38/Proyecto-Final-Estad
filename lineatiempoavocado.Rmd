@@ -1,0 +1,91 @@
+---
+title: "seriesdatos"
+author: "Nelson Lopez, Angel Rodriguez"
+date: "3/6/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+#Serie de tiempo sobre las bolsas de aguacate vendidas a lo largo de los años
+```{r}
+library(lubridate)
+library(forecast)
+
+library(tidyverse)
+aguacates<- read.csv("avocado.csv")
+
+aguacates$fecha= as.Date(aguacates$Date, format="%d/%m/%Y")
+
+aguacates$semana=week(aguacates$fecha)
+aguacates$year= year(aguacates$fecha)
+aguacatessemanal= aguacates %>% group_by(year,semana) %>% summarise(Total.Bags)
+
+serieaguacate=ts(aguacatessemanal$Total.Bags, start=c(2015,1),frequency = 52)
+plot(serieaguacate)
+componentes = decompose(serieaguacate)
+
+aguacates1018= window(serieaguacate, start=2015,end=2018)
+pron1 = forecast(aguacates1018,10)
+plot(pron1)
+
+
+mod = auto.arima(aguacates1018)
+pron2= forecast(mod,10)
+plot(pron2)
+
+modHT = HoltWinters(aguacates1018)
+pron3 = forecast(modHT,10)
+plot (pron3)
+
+accuracy(pron1)
+accuracy(pron2)
+accuracy(pron3)
+
+
+```
+
+
+
+
+
+#Serie de tiempo de los precios de los aguacates
+
+```{r}
+library(lubridate)
+library(forecast)
+library(dplyr)
+library(tidyverse)
+
+aguacates$fecha= as.Date(aguacates$Date, format="%d/%m/%Y")
+aguacates$semana = week (aguacates$fecha)
+aguacates$year= year(aguacates$fecha)
+aguacatessemanal= aguacates %>% group_by(year,semana) %>% summarise((AveragePrice))
+
+serieaguacateprecio=ts(aguacatessemanal$`(AveragePrice)`, start =c(2015,1),frequency = 52)
+plot(serieaguacateprecio)
+componentes = decompose(serieaguacateprecio)
+
+aguacates1018= window(serieaguacateprecio, start=2015,end=2018)
+pron1 = forecast(aguacates1018,10)
+plot(pron1)
+
+
+mod = auto.arima(aguacates1018)
+pron2= forecast(mod,10)
+plot(pron2)
+
+modHT = HoltWinters(aguacates1018)
+pron3 = forecast(modHT,10)
+plot (pron3)
+
+accuracy(pron1)
+accuracy(pron2)
+accuracy(pron3)
+```
+
+

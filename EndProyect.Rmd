@@ -1,0 +1,458 @@
+---
+title: "Proyecto Final Estadistica"
+author: "Angel Emilio Rodriguez Ramos 2490-19-20773, Nelson Adolfo López Fernández 2490-19-18688"
+date: "2/6/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+require(stats)
+library(dplyr)
+library(ggplot2)
+library (nortest)
+library(readr)
+```
+```{r}
+adult <-read.csv("adult.csv")
+
+```
+
+# Problema No.1 
+Se ha puesto en discusion que existe una dependencia de varibles en esta situacion, en la cual indican que la edad afectara considerablemente en el rendimiento de un trabajador, suponiendo que entre mayor edad menor sera el horario que este trabaje. Comprobar la calidad de correlacion por medio de un analisis.
+```{r}
+cor(adult$age,adult$hours.per.week, method = "pearson")
+0.06875571 > 0.70
+plot(adult$age,adult$hours.per.week, col=("blue"), xlab = "Edad", ylab = "Horas por semana")
+```
+
+### Respuesta: Segun el analisis realizado, obtenemos un resultados los cuales nos indinca que que no se tiene un buen nivel de correlacion entre las varibles, lo que nos indica que no existe ningun tipo de dependencia una de la otra, en la grafica podemos observar como es el comportamiento de los datos, observando intervalos de datos agrupados los cuales se mantiene de 20 a 60 horas semanales en un grupo de entre 20 a 60 anios, aunque se pueden observar datos dispersos que indican que hay personas de mayor edad trabajando por mas tiempo.
+
+
+
+# Problema No. 2
+Segun estudios se;alan una cambio notable en las medias de perdida de capital en algunos trabajadores, basandose en la relacion actual que ellos esten pasando. Se pide realizar los analisis correspondientes y dependiendo de ellos sacar las debidas conclusiones del problema.
+## Ho . No existe diferencia alguna en las medias de perdida de capital.*
+## H1. Es posible que un grupo de datos presente algun cambio minimo el cual ampare dicha suposicion anterior.*
+```{r}
+anova1 <-aov(adult$capital.loss~adult$relationship)
+summary(anova1)
+pvalue <- 50.47
+pvalue < 0.05
+ggplot(data = adult, aes(x = relationship, y= capital.loss, color= relationship))+geom_boxplot() + theme_bw()
+```
+
+### Respuesta: Segun el analisis matematico antes realizando, nos hace tomar la desicion de no rechazar la Ho, por lo tanto no existe diferencia de medias en relacion a la perdida del capital, cabe resaltar que segun el grafico realizado podemos observar grupos de datos dispersos los cuales nos muestran la variacion que algunos datos sufren en los diferentes estados de la relacion.
+
+
+
+# Problema No.3 
+Verificar en estas variables su relacion, ya que se cree que el sexo del individuo en cuestion, se vera implicado en la ocupacion que desemepe;e cada empleado.
+## Ho. El sexo no afecta en nada, segun sea la ocupacion del individuo.*
+## H1. La ocupacion es afectada por el sexo, esto se ve reflejado en la cantidad de individuos por grupos*
+```{r}
+tabla1 <-table(adult$sex,adult$occupation, dnn = c("Sexo","Ocupacion"))
+chisq.test(tabla1)
+pvalue1 <-2.2e-16
+pvalue1 < 0.05
+mosaicplot(tabla1, main = deparse("Relacion entre el sexo y la Ocupacion"), color=c("blue","green"))
+```
+
+
+### Respuesta: Aunque es un poco confuso el lograr entender el grafico realizado para esta prueba, el resultado matematico nos ha arrojado un valor menor del N.S por tanto, aceptamos H1. teniendo en cuenta que la ocupacion se puede ver afectada por el genero, segun la grafica podemos observar que donde por un lado del genero se ve mayoria por el otro se encuentra en escases de trabajdores de dicho genero.
+
+
+
+# Problema No.4
+En este insciso vamos a evaluar la relacion en la cual se involucra a la raza, ya que se cree que esta depende de la ciudad natal de donde venga. Se quiere comprobar para ver si es cierta esta teoria o que no se tiene ningna relacion entre estas dos varibles.
+## H0.La raza no dependera de la ciudad natal de donde provenga el individuo*
+## H1.La cuidad natal reflejara la raza del individuo.*
+```{r}
+tabla2 <-table(adult$race,adult$native.country, dnn=c("Raza","Cuidad Natal"))
+chisq.test(tabla2)
+pvalue2 <-2.2e-16
+pvalue2 < 0.05
+mosaicplot(tabla2, main = deparse("Relacion entre la raza y la Ciudad natal"), color = c("red","yellow","orange")) 
+```
+
+### Respuesta: El analisis matematico hecho con antelacion nos arrojo un resultado el cual no induce a poder aceptar la hipotesis alternativa, ya que el valor del p-value obtenido esta por debajo del N.S. El grafico cuenta con muchas variables lo cual lo dificulta a tener un buen entendimiento. Por respuesta matematica nos basaremos a dar como resultado que la raza ***Si*** dependera de la cuidad natal a la que se encuentre. 
+
+
+
+# Problema No. 5
+Se tiene la suposicion, dada las horas por semana trabajas que estas se veran afectadas considerablemente por el estado civil de cada persona. Se ha supuesto que mientras sea la menor la responsabilidad civil en la relacion sera mas grande la cantidad de horas por semana.
+## Ho.El cambio de medias se vera afectado aunque sea a un grupo*
+## H1.La media de las horas sera las mismas, no tendra ninguna variacion*
+```{r}
+anova2 <- aov(adult$hours.per.week ~adult$marital.status)
+summary(anova2)
+pvalue3 <-2e-16
+pvalue3 < 0.05
+ggplot(data= adult, aes(x=hours.per.week , y=marital.status, color= marital.status)) +geom_boxplot() +theme_bw()
+```
+
+### Respuesta: Aceptaremos la hipotesis alternativa, el analisis matematico nos arrojo un valor por debajo de lo establecido con relacin al pvalue por tanto, se tomo esta decision. Si nos apoyamos con el grafico, podemos darnos cuenta que no existe una variacion en las medias, aunque se cuenta con algunos datos dispersos en toda la grafica por los distintos grupos.
+
+
+
+# Problema No.6
+Se cree que el grado de educacion se ve afectado por considerablemente por la edad del individuo en cuestion, llegando de dudas el saber si la media de educacion sera la misma para todos sin importar la edad o tendra alguna variacion entre los grupos de estudio.
+## Ho. Las medias de los grupos en relacion a la edad no se veran afectados por el grado de educacion*
+## H1. Las medias seran diferentes ya que existe una variacion en algun grupo.*
+```{r}
+anova3 <-aov(adult$age~adult$education)
+summary(anova3)
+pvalue4 <- 2e-16
+pvalue4 < 0.05
+ggplot(data= adult, aes(x=age , y=education, color= education)) +geom_boxplot() +theme_bw()
+```
+
+### Respuesta: Aceptaremos la hipotesis alternativa y basandonos en el analisis grafico realizado podemos confirmar que si existe una diferencia entre la media de las edades segun el grado de educacion obtenido, tambien en la grafica podemos observar un conjunto de datos dispersos los cuales van mas alla del rango de edad evaluado.
+
+
+
+# Problema No.7
+Se quiere comprobar si existe normalidad en los datos de las variables a evaluar, las cuales serian la edad, juntamente con el genero, comprobar si existe dicha normalidad en los datos o si existe alguna variacion.
+```{r}
+Edad <- split(adult$age, adult$sex)
+hist(Edad$Female, xlab="Mujeres", col ="bisque", main = "Edad en Mujeres")
+hist(Edad$Male, xlab="Hombres", col ="aliceblue", main = "Edad en Hombres")
+```
+
+### Respuesta: En la grafica en relacion a la edad de las mujeres podemos observar una grafica que tiende a sesgarse hacia la derecha, los datos disminuyen gradualmente de mayor a menor hacia esta direccion.
+En relacion a la grafia de la edad en los hombres podemos observar que el grafico de igual manera esta sesgado hacia la derecha, aunque este mas hace alucion a querer tener una normalidad en sus datos, empezando la grafica con incremento, llegando al punto mas alti de los datos y luego disminuyendo gradualmente.
+
+
+
+# Problema No. 8
+Se quiere comprobar si existe normalidad en los datos de edad obtenidos en una encuensta, con relacion a la calse de trabajo que se posea. Cabe resaltar que solo se evaluaran 3 tipos de trabajo de las 9 existentes.
+```{r}
+EC<- split(adult$age, adult$workclass)
+hist(EC$Private, xlab= "Private", col ="aquamarine", main = ("Edad en el sector  de trabajo"))
+hist(EC$`Local-gov`, xlab= "Gobernadorx Local", col ="purple", main = ("Edad en el sector  de trabajo"))
+hist(EC$`Federal-gov`, xlab= "Gobierno Federal", col ="green", main = ("Edad en el sector de trabajo"))
+```
+
+### Respuesta No1. Para la grafica del serctor privado, esta se puede observar que esta sesgada para el dato derecho de la misma.
+### Respuesta No2. Para la grafica del Gobernadx Local se puede observar que casi cuenta con una normalidad en sus datos, la grfica muestra una ligera sesgadura hacia el lado derecho.
+### Respuesta No3. Para esta grafica del Gobierno Federal se logra ver una mayor normalidad en los datos a comparacion de las otras, tiene una ligera sesgadura hacia su derecha, pero generalmente esta estaria mas cerca a tener normalidad en sus datos.
+
+
+
+# Problema No. 9 
+Existe alguna diferencia en el nivel de perdida capital tanto en hombres como en mujeres. Realizar las pruebas necesarias al caso y dar las debidas conclusiones al problema.
+## Ho El ingreso de las medias con respecto a la perdida capital sera igual en todos los casos*
+## H1 Existe una variacion en las medias de perdidas que depende del genero del individuo*
+
+```{r}
+t.test(adult$capital.loss~adult$sex)
+pvalue5 <- 2.2e-16
+pvalue5 < 0.05
+boxplot(adult$capital.loss~adult$sex, xlab = "Genero", ylab = "Perdida de Capital", col=c("purple","blue"))
+```
+
+### Respuesta: Aceptaremos la hipotesis alternativa, ya que el pvalue salio por debajo del nivel acordado de N.S., la grafica nos muestra una media puesta a 0 pero que la mayoria de datos se encuentra dispersa por toda la grafica, marcando diversos puntos en esta.
+
+
+
+# Problema No.10
+Se pide evaluar si existe algun tipo de relacion entre la raza de cada invidiuo con relacion a la ocupacion de este, se pide comprobar si estas cuentan con algun tipo de dependecia.
+## Ho. La raza no afectara a la ocupacion de cada individuo*
+## H1. La ocupacion se ve influenciada por la raza de cad individuo *
+```{r}
+tabla3 <- table(adult$race,adult$occupation, dnn=c("Raza","Ocupacion"))
+chisq.test(tabla3)
+pvalue6 <- 2.2e-16
+pvalue6 <0.05
+mosaicplot(tabla2, main = deparse("Relacion entre la raza y la Ocupacion"), color = c("red","yellow","orange")) 
+```
+
+### Respuesta: Por analisis matematico podemos llegar a la conclusion, aceptaremos la hipotesis alternativa, ya que si existe una variacion en los trabajadores segun sea su raza.El grafico por la cantidad de datos procesados es dificil de entender, por eso nos fiamos del analisis matematico.
+
+
+
+# Problema No. 11
+Se pide evaluar si existe una relacion de dependencia entre las variables edad y el ingreso de cada individuo a fin de comprobar la veracidad de este enunciado.
+```{r}
+cor(adult$age,adult$education.num, method = "pearson")
+ 0.03652719 > 0.70
+ plot(adult$education.num,adult$age, xlab = "Numero de Grado Educativo",ylab = "Edad", col="gold")
+```
+
+### Respuesta: El grado de correlacion obtenido es muy por debajo del nivel recomendado, por lo cual podemos concluir que no se tiene ningun tipo de dependencia entre estas dos variables, ademas el grafico nos indica que se tiene indicios que se produzca una dependencia, ya que los datos son muy dispersos.
+
+
+
+# Problema No.12
+Se desea comprobar la relacion que existe entre el numero de educacion maximo alcanzado por cada individuo, basandonos en el genero de estos. Se debera comprobar si existe esta relacion, ademas explicar el resultado obtenido durante la prueba.
+## Ho. Se tiene una diferencia de medias, ya que no se tiene relacion alguna en ambas varibles.*
+## H1. Se tiene una relacion entre las medias de grados alcanzadas por ambos generos*
+```{r}
+t.test(adult$education.num~adult$sex)
+pvalue7 <-  0.02137
+pvalue7 < 0.05
+boxplot(adult$education.num~adult$sex, xlab = "Genero", ylab = "Numero educativo alcanzado", col=c("blue violet","sky blue"))
+```
+
+### Respuesta: El resultado matematico obtenido indica que debemos aceptar la hipotesis alternativa, si nos apyamos en la grafica podremos observar que las medias son las mismas, pero los grupos de datos son mas extensos, comparando unos con otros y que el rango de escala que estos ocupan es un poco mas grande (en el caos de los hombres) ademas, contamos con algunos datos dispersos, los cuales se encuentran afuera del rango establecido por los demas datos.
+
+
+
+# Problema No.13
+Se desea comprobar si existe una normalidad en los datos, dando al analisis las variables de edad en relacion al estado civil de una persona, se pide evaluar unicamente a un grupo de personas, sea esta a su eleccion.
+```{r}
+civ <-split(adult$age,adult$relationship)
+hist(civ$`Own-child`, main = "Relacion entre la edad y suituacion de tener 1 hijo propio", xlab = "Edad", col = ("red"))
+```
+
+### Respuesta: El dato analizado fue la situacion de tener un hijo propio, la normalidad en los datos es casi nula, ademas esta grafica se encuentra sesgada hacia la derecha, tambien podemos comprobar que las personas de menor edad tienen una frecuencia mas grande de tener un hijo propio en comparacion con las personas de mayor edad.
+
+
+         
+# Problema No.14 
+Confirmar la veraciada de la relacion propuesta entre las variables del numero de educacion alcanzado y el estado civil de las personas, para comprobar si existe algun tipo de depencia o relacion entre ellas.
+## Ho. Las medias de educacion seran las mismas para el estadi civil de cada persona*
+## H1. Se tienen diferentes medias respecto al numero educativo alcanzado por cada uno*
+```{r}
+anova4 <- aov(adult$education.num~adult$marital.status)
+summary(anova4)
+2e-16 < 0.05
+ggplot(data= adult, aes(x=education.num , y=marital.status, color= marital.status)) +geom_boxplot() +theme_bw()
+```
+
+
+### Respuesta: Ya que el valor de p-value es menor al grado de N.S. debemos aceptar la hipotesis alternativa, la cual nos indica que si existe una variacion en las medias con respecto al numero o grado de estudio alcanzado. La grafica nos muestra los segmentos ocupados por cada grupo asi como tambien datos dispersos los cuales se encuentran alejados el grupo mayoritario.
+
+
+
+# Problema No.15
+Del analisis realizado en el insciso anterior se quiere conocer si existe normalidad en los datos comprobando con las mismas varibles, en este caso se pide analizar el grupo de los divorciados, si en estos se tiene dicha normalidad.
+```{r}
+div <- split(adult$education.num,adult$marital.status)
+hist(div$Divorced, main = "Histograma de Divorciados", xlab = "Grado de estudio", col = "purple")
+```
+
+### Respuesta: La grafica nos muestra una poca normalidad de datos, a pesar que formaria una grafica de normalidad, los datos esta distribuidos de una forma baja lo que no permite tomarlo como normal.
+
+
+```{r}
+master <- read.csv("master.csv")
+```
+
+
+# Problema No. 16
+Se pide realizar las respectivas operaciones para poder comprobar si existe cierta normalidad en los datos o algun patron establecido entre las variables Genero y el No. de suicidios.
+```{r}
+SS <- split(master$suicides_no,master$sex)
+hist(SS$male, main = "Histograma de Suicidios por Genero", xlab = "Hombres", col = "blue")
+hist(SS$female, main = "Histograma de Suicidios por Genero", xlab = "Mujeres", col = "pink")
+
+```
+### Respuesta: Podemos observar en ambas graficas que no se cuenta con una normalidad de los datos, los datos se centran solo en un grupo especifico de medida. Ambos cuentan con la misma forma de la grafica aunque a menor medida. Cabe resaltar que los datos indican que los hombres tienen a tener mayor numero de suicidios en relacion a la mujeres.
+
+
+
+
+# Problema No. 17
+Se pide realizar el analisis necesario para comprobar la correlacion entre la variable perdida capital con la variable de numero de suicidios. Comprobar si existe relacion entre estas y si de ser asi de que forma cree usted funcionaria.
+```{r}
+cor(master$suicides_no,master$gdp_per_capita...., method = "pearson")
+0.06132975 > 0.70
+plot(master$suicides_no,master$gdp_per_capita...., xlab = ("Numero de Suicidios"), ylab = ("Perdida Capital"), col = ("brown"))
+```
+
+### Respuesta: Podemos observar que la mayoria de graficos se agrupan de un rango de 0 a 5k, el analisis matematico nos indica que tenemos una poca correlacion entre estas variables, lo cual lo hace menos probable el contar con una dependencia de estas.
+
+
+# Problema No. 18 
+Comprobar si existe relacion entre las medias de la perdida de capital por anio dependiendo de la generacion a la que pertenezcan. Comprobar al final si existe alguna variacion y cual generacion es la que representa mas perdidas.
+## Ho. NO existe variacion en la media de perdida*
+## H1. Existe variacion entre las medias, lo que indica que cierto grupo maneja mas perdidas*
+```{r}
+anova5 <- aov(master$gdp_per_capita....~master$generation)
+summary(anova5)
+2e-16 < 0.05
+ggplot(data= master, aes(x= generation, y=gdp_per_capita...., color= generation)) +geom_boxplot() +theme_bw()
+```
+
+### Respuesta: Si existe una variacion en la media de perdidas, por cual aceptaremos la hipotesis alternativa planteada al inicio del problema, podemos observar diversos datos dispersos por los grupos de la grafica los cuales no comparten espacio con el dato mayoritario.
+
+
+
+
+# Problema No. 19 
+Se quiere comprobar la relacion entre numero de suicidios dados, en relacion a las generaciones existentes, para comprobar si la generacion tiene relacion en la toma de tan lamentable decision. Realizar los analisis del caso y comprobar si dicha suposicion es cierta o no.
+```{r}
+anova6 <- aov(master$suicides_no~master$generation)
+summary(anova6)
+2e-16 <0.05
+ggplot(data= master, aes(x= generation, y=suicides_no, color= generation)) +geom_boxplot() +theme_bw()
+```
+
+### Respuesta: Aceptamos la H1, ya que se tiene una variacion en las medias, ademas podemos observar en la grafica que la generacion con mas suicidios es **Boomers** Con la mayoria de datos, aunque tambien podemos observar datos dispersos en la grafica.
+
+
+
+# Problema No. 20
+Comprobar si existe normalidad en los datos obtenido en la variable Ciudad, con relaicon a los suicidios a cada 100k pop. Comentar como es el tipo de grafica obtenido.
+```{r}
+cuidad <- split(master$suicides.100k.pop,master$ï..country)
+hist(cuidad$Guatemala, main = "Suicidios en Guatemala", xlab = "Suicidios por cada 100k habitantes", col = "red")
+```
+
+### Respuesta: Como podemos notar no se cuenta con una normalida en los datos anteriormente evaluados, para no hacer extenso las graficas, tomamos los datos de Guatemala en relacion al numero de suicidios a cada 100k para poder compara su grafica, la cual sesga hacia la derecha, esta se encuentra desde 0  a 15 y un dato disperso que va mas alla de los 20 
+
+#Dataset creditos
+```{r}
+tarjetacredito <- read.csv("C:/Users/nello/OneDrive/Escritorio/proyecto final stat/credicards/BankChurners.csv")
+```
+
+#1
+##El nivel de educación depende de la categoría de tarjeta que maneja
+h0. El nivel de educación indica que tipo de tarjeta tiene el cliente
+h1. El nivel de educación no influye en la categoria de tarjetas
+
+```{r}
+
+tabla <- table(tarjetacredito$Education_Level, tarjetacredito$Card_Category, dnn=c("Educación","Categoria tarjeta" ))
+tabla
+chisq.test(tabla)
+0.4803<0.05
+mosaicplot(tabla, main=deparse("Relación de educación y caterogia de tarjetas"), col=c("green","red","blue"))
+
+```
+podemos apreciar que de cierta manera y aplicando un poco de análisis logico, damos por hecho que tener un mejor nivel de educación, influirá en la tarjeta que le sea asignada, aunque no ocurre en todos los casos, pues muchas veces solo se necesita una tarjeta para lo básico. por lo que según nuestro analisis, se acepta la ho.
+
+
+#2
+#Estar casado hace que dependan más personas de ti
+ho. Estar casado o en una relación marital, hace que tengas más dependientes
+h1. No importa si estás en una relación, tendrás siempre dependientes.
+
+```{r}
+
+anova<-aov(tarjetacredito$Dependent_count~tarjetacredito$Marital_Status)
+summary(anova)
+Pr<-3.36e-06
+Pr<0.05
+ggplot(data=tarjetacredito, aes(x=Dependent_count,y=Marital_Status, color=Marital_Status ))+ geom_boxplot()+theme_replace()
+```
+Nos damos cuenta que las medias comunes son de 2 dependientes, sin embargo, existe otro apartado en el que prefieren no mencionar su situación marital, pero si mencionan a sus dependientes, cuya media es de 3 personas, lo que nos hace rechazar la ho. ya que al menos un grupo de medias es diferente de otro.
+
+#3el limite de credito varía según la edad
+
+h0. la edad del cliente no influye para el lmite de credito
+h1. el limite de credito está definida por la edad del cliente
+
+```{r}
+cor.test(tarjetacredito$Customer_Age, tarjetacredito$Credit_Limit)
+0.8032<0.05
+plot(tarjetacredito$Customer_Age,tarjetacredito$Credit_Limit, main= "Relación entre edad y limite de credito",xlab="Edad del cliente", ylab="Limite de credito", col=c("blue", "yellow"))
+```
+Como bien nos arroja en la prueba de correlación, la edad del cliente, si define la cantidad de credito limite otorgado, y tiene sentido hasta cierto punto, pero en este caso gracias a un buen nivel de correlación, podemos dar certeza de que si depende una variable de otra, por lo que se afirma la h1.
+
+
+#4 mientras más dependientes tenga más será el limite de credito
+ho. no importa cuantos dependientes se tengan, el limite de credito no lo define esta variable
+h1. mientras más dependientes se tengan, mayor será el limite de credito que el cliente necesite
+
+
+
+```{r}
+cor.test(tarjetacredito$Dependent_count, tarjetacredito$Credit_Limit)
+7.049e-12<0.05
+plot(tarjetacredito$Dependent_count,tarjetacredito$Credit_Limit, main= "Relación entre edad y limite de credito",xlab="Edad del cliente", ylab="Limite de credito", col=c("blue", "yellow"))
+```
+El hecho de que un cliente tenga más dependientes que otro, no es un indicador claro de que vaya a tener más limite de credito, ya que sus necesidades pueden ser otras, por lo que se acepta la ho.
+
+#5 normalidad en los datos de años de relación con el banco
+```{r}
+
+ad.test(tarjetacredito$Months_on_book)
+shapiro.test(tarjetacredito$Months_on_book[0:5000])
+hist(tarjetacredito$Months_on_book)
+mbancosanios<-(mean(tarjetacredito$Months_on_book))
+abline(v=mbancosanios, col="yellow")
+
+```
+
+
+#6 las mujeres tienen mejor limite de credito
+ho. las mujeres pueden tener mejor credito que los hombres
+h1. ambos generos pueden optar a un mejor limite de credito
+
+```{r}
+anova<-aov(tarjetacredito$Credit_Limit~tarjetacredito$Gender)
+summary(anova)
+2e-16<0.05
+ggplot(data=tarjetacredito, aes(x=Credit_Limit,y=Gender, color=Gender ))+ geom_boxplot()+theme_replace()
+```
+Una lógica un tanto antigua en tiempos actuales, es pensar que las mujeres puden tener mejor limite de credito por el hecho de que les gusta comprar mucha ropa, calzado, o simplemente los alimentos, pero gracias a este pequeño análisis, nos damos cuenta que no es así, sin embargo, existen muchos datos que están dispersos en el genero de las mujeres, dandonos que pensar, de momento, se rechaza la ho, dandonos como conclusión que ambos generos pueden optar a un buen limite de credito
+
+
+#7
+ho.hombres y mujeres tienen las mismas posibilidades de un nivel de educación bueno
+h1.si eres hombre o mujer, tendrás mejor nivel educativo
+```{r}
+tabla <- table(tarjetacredito$Gender, tarjetacredito$Education_Level, dnn=c("Genero","Nivel de estudios" ))
+tabla
+chisq.test(tabla)
+0.295<0.05
+mosaicplot(tabla, main=deparse("Nivel de estudios de mujeres y hombres"), col=c("green","red","blue","white","gray","brown","cyan"))
+```
+Tanto hombres como mujeres pueden tener un buen nivel de educación, lo que nos indica que estas variables son totalmente independientes del genero que el cliente tenga. por lo que se acepta la ho.
+
+#8 los ingresos definen la categoria de tarjeta
+h0.los ingresos del cliente, sirven para determinar la categoria de tarjeta que posee
+h1.el cliente con mejores ingresos, tendrá opcion a una mejor categoría de tarjeta
+```{r}
+tabla <- table(tarjetacredito$Income_Category, tarjetacredito$Card_Category, dnn=c("Categoria de ingresos","Categoria tarjeta" ))
+tabla
+chisq.test(tabla)
+1.211e-14<0.05
+mosaicplot(tabla, main=deparse("Relación de categoria de ingresos y caterogia de tarjetas"), col=c("green","red","blue"))
+```
+
+gracias al analisis anterior, podemos decir que en efecto, tener mejores ingresos, ayuda a que el cliente tenga opción a una mejor categoría de tarjetas, siendo las personas con ingresos menores a 40k el grupo más grande al usar una tarjeta blue, por ende rechazamos la ho.
+
+
+#9 promedio de saldo disponible de compra a través de la categoría de la tarjeta
+
+
+```{r}
+anova<- aov(tarjetacredito$Avg_Open_To_Buy~tarjetacredito$Card_Category)
+summary(anova)
+2e-16<0.05
+ggplot(data=tarjetacredito, aes(x=Avg_Open_To_Buy,y=Card_Category, color=Card_Category ))+ geom_boxplot()+theme_replace()
+
+```
+
+#10 depende de la edad, así va a ser el gasto
+```{r}
+cor(tarjetacredito$Customer_Age,tarjetacredito$Avg_Open_To_Buy)
+plot(tarjetacredito$Customer_Age,tarjetacredito$Avg_Open_To_Buy, main= "Relación entre edad y promedio de compra disponible",xlab="Edad del cliente", ylab="Compra disponible", col=c("blue", "yellow"))
+```
+#11
+normalidad de los datos de la cantidad de suicidios
+```{r}
+ad.test(master$suicides_no)
+ 2.2e-16<0.05
+ hist(master$suicides_no)
+ msuicidios<-(mean(master$suicides_no))
+abline(v=msuicidios, col="yellow")
+```
+#12
+ho. cada rango de edad es independiente de la generación a la que pertenecen
+h1. La edad de cada individuo, define la generación en la que nació
+```{r}
+generaciones <- table(master$age, master$generation, dnn=c("Edad","Generacion" ))
+generaciones
+chisq.test(generaciones)
+2.2e-16<0.05
+mosaicplot(generaciones, main=deparse("Relación de las edades pertenecientes a cada generación"), col=c("green","red","blue"))
+
+```
+Damos por hecho que la edad en efecto define al individuo en la generación que le tocó nacer, por lo que se rechaza la ho.
+
